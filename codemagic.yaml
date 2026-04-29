@@ -9,14 +9,25 @@ workflows:
     scripts:
       - name: Build Debug APK
         script: |
+          set -e
           sed -i 's/\r$//' gradlew
           chmod +x gradlew
+
           echo "=== JAVA VERSION ==="
-          java -version
+          java -version 2>&1 | tee java_version.log
+
           echo "=== GRADLE WRAPPER VERSION ==="
-          ./gradlew --version
+          ./gradlew --version 2>&1 | tee gradle_version.log
+
           echo "=== START BUILD ==="
-          ./gradlew assembleDebug --stacktrace --info
+          ./gradlew assembleDebug --stacktrace --info 2>&1 | tee build_full.log || {
+            echo "=== BUILD FAILED, PRINTING LOG ==="
+            cat build_full.log
+            exit 1
+          }
 
     artifacts:
       - app/build/outputs/**/*.apk
+      - java_version.log
+      - gradle_version.log
+      - build_full.log
