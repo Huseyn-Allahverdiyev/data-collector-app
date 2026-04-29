@@ -11,7 +11,12 @@ workflows:
         script: |
           sed -i 's/\r$//' gradlew
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          echo "=== JAVA VERSION ==="
+          java -version
+          echo "=== GRADLE WRAPPER VERSION ==="
+          ./gradlew --version
+          echo "=== START BUILD ==="
+          ./gradlew assembleDebug --stacktrace --info
 
     artifacts:
       - app/build/outputs/**/*.apk
