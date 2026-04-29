@@ -1,15 +1,31 @@
-#!/bin/sh
+workflows:
+  android-build:
+    name: Android Build
+    max_build_duration: 60
 
-DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-APP_HOME="$DIR"
+    environment:
+      java: 17
 
-if [ -n "$JAVA_HOME" ]; then
-  JAVACMD="$JAVA_HOME/bin/java"
-else
-  JAVACMD="java"
-fi
+    scripts:
+      - name: Build Debug APK
+        script: |
+          set -e
 
-exec "$JAVACMD" \
-  -Dorg.gradle.appname=gradlew \
-  -classpath "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
-  org.gradle.wrapper.GradleWrapperMain "$@"
+          tmp_file="$(mktemp)"
+          tr -d '\r' < gradlew > "$tmp_file"
+          mv "$tmp_file" gradlew
+
+          chmod +x gradlew
+
+          echo "=== JAVA VERSION ==="
+          java -version
+
+          echo "=== GRADLE WRAPPER VERSION ==="
+          ./gradlew --version
+
+          echo "=== START BUILD ==="
+          ./gradlew assembleDebug --stacktrace --info 2>&1 | tee build_full.log
+
+    artifacts:
+      - app/build/outputs/**/*.apk
+      - build_full.log
