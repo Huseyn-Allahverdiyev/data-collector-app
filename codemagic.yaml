@@ -7,24 +7,10 @@ workflows:
       java: 17
 
     scripts:
-      - name: Validate Gradle wrapper files
-        script: |
-          test -f gradlew || { echo "gradlew yoxdur"; exit 1; }
-          test -f gradle/wrapper/gradle-wrapper.jar || { echo "gradle-wrapper.jar yoxdur"; exit 1; }
-          test -f gradle/wrapper/gradle-wrapper.properties || { echo "gradle-wrapper.properties yoxdur"; exit 1; }
-
-      - name: Fix line endings and permissions
-        script: |
-          mv gradlew gradlew.bak
-          tr -d '\r' < gradlew.bak > gradlew
-          rm gradlew.bak
-          chmod +x gradlew
-          ls -l gradlew
-          head -n 1 gradlew
-
       - name: Build Debug APK
         script: |
-          ./gradlew assembleDebug --stacktrace
+          sed -i 's/\r$//' gradlew
+          bash ./gradlew assembleDebug --stacktrace
 
     artifacts:
       - app/build/outputs/**/*.apk
