@@ -9,6 +9,8 @@ workflows:
     scripts:
       - name: Build Debug APK
         script: |
+          echo "HELLO FROM YAML"
+          exit 1
           set -e
           sed -i 's/\r$//' gradlew
           chmod +x gradlew
